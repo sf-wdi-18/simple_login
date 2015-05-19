@@ -136,6 +136,8 @@ Let's write some logic in our `models/index`.
 `index.js`
 
 ```
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/simple_login");
 module.exports.User = require("./user");
 ```
 
@@ -152,13 +154,13 @@ var userSchema = new mongoose.Schema({
   passwordDigest: String
 });
 
-userSchema.statics.createSecure = function (params, cb) {
+userSchema.statics.createSecure = function (email, password, cb) {
   var that = this;
   bcrypt.genSalt(function (err, salt) {
-    bcrypt.hash(params.password, salt, function (err, hash) {
+    bcrypt.hash(password, salt, function (err, hash) {
       console.log(hash);
       that.create({
-        email: params.email,
+        email: email,
         passwordDigest: hash
        }, cb)
     });
@@ -466,8 +468,10 @@ We need a `GET /login` view and route.
 
 ```javascript
 
+var views = path.join(process.cwd(), "views");
+
 app.get("/login", function (req, res) {
-  res.render("login");
+  res.sendFile(path.join(views,  "login"));
 });
 
 ```
@@ -475,7 +479,7 @@ app.get("/login", function (req, res) {
 Then create the login view
 
 
-`simple_login/views/login.ejs`
+`simple_login/views/login.html`
 
 ```html
 
