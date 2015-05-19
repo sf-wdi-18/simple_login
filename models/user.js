@@ -35,14 +35,16 @@ userSchema.statics.encryptPassword = function (password) {
 
 
 userSchema.statics.authenticate = function(email, password, cb) {
-  this.find({
-     email: email
-    }, 
+  // find just one user with the email 
+  this.findOne({
+     email: email // find user by email
+    }, // then if user exists with that email
     function(err, user){
+      console.log(user);
       if (user === null){
         throw new Error("Username does not exist");
-      } else if (user.checkPassword(password)){
-        cb(null, user);
+      } else if (user.checkPassword(password)){ // verify password
+        cb(null, user); // send back that user
       }
 
     })
