@@ -370,13 +370,13 @@ Notice the headers have a `set-cookie` key and value. Now we can create some spe
 app.use("/", function (req, res, next) {
 
   req.login = function (user) {
-    req.session.userId = user.id;
+    req.session.userId = user._id;
   };
 
   req.currentUser = function (cb) {
      db.User.
-      find({
-          id: req.session.userId
+      findOne({
+          _id: req.session.userId
       },
       function (err, user) {
         req.user = user;
