@@ -6,6 +6,9 @@
 </head>
 <body>
 	<form method="post" action="/signup">
+	<!-- Note that names user[email] and user[password] 
+	     means our req.body will have one object (user),
+	     with user.email and user.password properties.  -->
   		<div>
     		<input type="text" name="user[email]">
   		</div>

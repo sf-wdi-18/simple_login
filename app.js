@@ -1,30 +1,35 @@
 var express = require('express'),
-    bodyParser = require('body-parser'),
-    db = require("./models"),
-    session = require("express-session"),
-    app = express(),
-    path = require("path");
+    app = express();
 
+var path = require("path"),
+	views = path.join(process.cwd(), "views");
 
-var views = path.join(process.cwd(), "views");
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(bodyParser.urlencoded({extended: true}))
-
+var session = require("express-session");
 app.use(session({
 	secret: "super secret",
 	resave: false,
 	saveUninitialized: true
-}))
+}));
 
+
+var db = require("./models");
+
+
+// our custom session management /
+// database interaction middleware    
 app.use("/", function (req, res, next) {
 
+	// sets the user for the current session
     req.login = function (user) {
       req.session.userId = user._id;
       console.log(user);
     };
 
-    // fetches the user associated with
-    //the current session
+    // from db, fetches the user associated with
+    //  the current session
     req.currentUser = function (cb) {
        db.User.
         findOne({
@@ -37,6 +42,7 @@ app.use("/", function (req, res, next) {
         })
     };
 
+    // resets the current user to null 
     req.logout = function () {
       req.session.userId = null;
       req.user = null;
@@ -49,17 +55,10 @@ app.get("/signup", function (req, res) {
     res.sendFile(path.join(views, "signup.html"));
 });
 
-// app.post("/signup", function (req, res) {
-// 	// decalre variable for form data
-// 	var user = req.body;
-// 	console.log(user);
-// 	db.User. // call encryptPassword to store hashed password
-// 		encryptPassword(user.email, user.password)
-// })
 
 // where users will POST DATA to create an account
 app.post("/signup", function (req, res) {
-	// grab User params from req
+	// grab User params from req.body (form data)
 	var user = req.body.user;
 	console.log(user);
 	
@@ -70,6 +69,8 @@ app.post("/signup", function (req, res) {
 				if (err) {
 					res.redirect("/signup");
 				} else {
+					// rememer to log the user in on signup or we'll get 
+					// profile for null!
 					req.login(user);
 					res.redirect("/profile");
 				}
